@@ -1,0 +1,25 @@
+subscriptions:
+  config-api:
+    environment-id: ${SUBSCRIPTIONS_CONFIG_API_ENVIRONMENT_ID:Dev}
+    #api-key: ${UPDATES_CONFIG_API_KEY:smk_6B6fEAj1bb6t37DQ0sHOnCbau_waWPv9pyYzLN63Soc}
+    api-key: ${SUBSCRIPTIONS_CONFIG_API_KEY:smk_hU88_wRx5JI9AS3cvHVGqJC4oEvfRo190nahL4n45OM}
+    settings:
+      db-url:
+        default-value: ${SUBSCRIPTIONS_DB_URL:jdbc:mysql://localhost:3306/subscriptionentitlements?useSSL=false&allowPublicKeyRetrieval=true}
+      auth0-callback-url:
+        default-value: http://local.api.subscriptions.alwaysmoveforward.com:8087/api/auth/callback
+      # The local API host (local.api.subscriptions.alwaysmoveforward.com:8081) is plain HTTP, and
+      # a Secure cookie is silently dropped by the browser off HTTPS -- see JwtService/CallbackController.
+      app-jwt-cookie-secure:
+        default-value: "false"
+
+  cors:
+    allowed-origin: http://local.subscriptions.alwaysmoveforward.com:5175
+
+  frontend:
+    base-url: http://local.subscriptions.alwaysmoveforward.com:5175
+
+logging:
+  level:
+    root: INFO
+    com.alwaysmoveforward.subscriptionrights: DEBUG

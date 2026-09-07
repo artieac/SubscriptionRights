@@ -1,0 +1,102 @@
+server:
+  port: ${SUBSCRIPTIONS_SERVER_PORT:8087}
+
+spring:
+  application:
+    name: subscriptions-backend
+
+  # url/username/password are supplied at startup by ConfigApiEnvironmentPostProcessor, sourced
+  # from the Configuration API (subscriptions.config-api) with each setting's default-value as the
+  # fallback — see below. There is nothing to set here directly.
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming:
+        # Every entity in this codebase gives its columns explicit @Column(name = "PascalCase")
+        # values matching database/schema.sql exactly (e.g. "CreatedAt", "ApplicationId") -- but
+        # Spring Boot's default physical naming strategy (SpringPhysicalNamingStrategy) lowercases
+        # and snake_cases EVERY column name at the physical layer, even ones given explicitly, so
+        # without this override Hibernate actually queries "created_at"/"application_id"/etc,
+        # which don't exist in the real schema. PhysicalNamingStrategyStandardImpl uses whatever
+        # name is given, verbatim, with no transformation.
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    open-in-view: true
+    properties:
+      hibernate:
+        format_sql: false
+
+subscriptions:
+  config-api:
+    # GET {base-url}/api/systems/{system-id}/environments/{environment-id}/secrets — see
+    # ConfigurationRepository / ConfigApiEnvironmentPostProcessor. Leave base-url unset to skip
+    # the API entirely and use each setting's default-value below (e.g. for local development
+    # without a running Configuration API).
+    base-url: ${SUBSCRIPTIONS_CONFIG_API_BASE_URL:http://api.configurationmanager.alwaysmoveforward.com:8085}
+    system-id: ${SUBSCRIPTIONS_CONFIG_API_SYSTEM_ID:Subscriptions}
+    environment-id: ${SUBSCRIPTIONS_CONFIG_API_ENVIRONMENT_ID:Production}
+    api-key: ${SUBSCRIPTIONS_CONFIG_API_KEY:}
+    # Each entry names a setting (used via ConfigurationSettings.getConfigurationSetting("<name>"),
+    # or — for the datasource settings below, which ConfigApiEnvironmentPostProcessor bootstraps
+    # directly since DataSourceAutoConfiguration needs them before the Spring context even exists
+    # — read straight off this Binder-bound properties object), maps it to the key name the
+    # Configuration API returns it under, and gives the value to use if the API doesn't have it
+    # (or isn't configured at all). Auth0's settings are consumed normally, after context startup,
+    # by the auth0Properties bean in ConfigurationSettingsConfig — see its comment.
+    settings:
+      db-url:
+        key: DBUrl
+        default-value: ${SUBSCRIPTIONS_DB_URL:jdbc:mysql://host.docker.internal:3306/subscriptionentitlements?useSSL=false&allowPublicKeyRetrieval=true}
+      db-username:
+        key: DBUserId
+        default-value: ${SUBSCRIPTIONS_DB_USERNAME:updates}
+      db-password:
+        key: DBPassword
+        default-value: ${SUBSCRIPTIONS_DB_PASSWORD:updates}
+      auth0-domain:
+        key: Auth0Domain
+        default-value: ${SUBSCRIPTIONS_AUTH0_DOMAIN:alwaysmoveforward.auth0.com}
+      auth0-client-id:
+        key: Auth0ClientId
+        default-value: ${SUBSCRIPTIONS_AUTH0_CLIENT_ID:}
+      auth0-client-secret:
+        key: Auth0ClientSecret
+        default-value: ${SUBSCRIPTIONS_AUTH0_CLIENT_SECRET:}
+      auth0-callback-url:
+        key: Auth0CallbackUrl
+        default-value: https://api.subscriptions.alwaysmoveforward.com/api/auth/callback
+      app-jwt-secret:
+        key: JWTSecret
+        default-value: ${SUBSCRIPTIONS_APP_JWT_SECRET:change-this-to-a-long-random-secret-in-every-real-environment}
+      # cookie-name/domain/secure/expiration-minutes back the session cookie JwtService issues
+      # (see JwtProperties, built by ConfigurationSettingsConfig's jwtProperties bean) — this app
+      # has no CSRF token/session, just this one cookie, so there's nothing else "app-jwt" needs.
+      # cookie-domain must cover both the frontend and API hosts, which live on different
+      # subdomains (e.g. api.subscriptions.alwaysmoveforward.com / subscriptions.alwaysmoveforward.com)
+      # -- a host-only cookie (an unset Domain attribute) is scoped to whichever exact host set it
+      # and won't be sent to the other subdomain, so this must name their shared parent domain.
+      app-jwt-cookie-name:
+        key: AppJwtCookieName
+        default-value: ${SUBSCRIPTIONS_JWT_COOKIE_NAME:SubscriptionCookie}
+      app-jwt-cookie-domain:
+        key: AppJwtCookieDomain
+        default-value: ${SUBSCRIPTIONS_COOKIE_DOMAIN:subscriptions.alwaysmoveforward.com}
+      app-jwt-cookie-secure:
+        key: AppJwtCookieSecure
+        default-value: "true"
+      app-jwt-cookie-expiration-minutes:
+        key: AppJwtCookieExpirationMinutes
+        default-value: "600"
+      # Comma-separated email addresses auto-promoted to admin on login (first login or any
+      # later one where they aren't already an admin) -- see AdminEmailsProperties/UserService.
+      admin-emails:
+        key: AdminEmails
+        default-value: ${SUBSCRIPTIONS_ADMIN_EMAILS:artieac@gmail.com}
+
+  cors:
+    allowed-origin: https://subscriptions.alwaysmoveforward.com
+  frontend:
+    base-url: https://subscriptions.alwaysmoveforward.com
+    post-login-path: /
