@@ -96,7 +96,7 @@ subscriptions:
         default-value: ${SUBSCRIPTIONS_ADMIN_EMAILS:artieac@gmail.com}
 
   cors:
-    allowed-origin: https://subscriptions.alwaysmoveforward.com
+    allowed-origin: http://subscriptions.alwaysmoveforward.com
   frontend:
-    base-url: https://subscriptions.alwaysmoveforward.com
+    base-url: http://subscriptions.alwaysmoveforward.com:85
     post-login-path: /
