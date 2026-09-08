@@ -66,7 +66,7 @@ subscriptions:
         default-value: ${SUBSCRIPTIONS_AUTH0_CLIENT_SECRET:}
       auth0-callback-url:
         key: Auth0CallbackUrl
-        default-value: https://api.subscriptions.alwaysmoveforward.com/api/auth/callback
+        default-value: https://api.subscriptions.alwaysmoveforward.com:8087/api/auth/callback
       app-jwt-secret:
         key: JWTSecret
         default-value: ${SUBSCRIPTIONS_APP_JWT_SECRET:change-this-to-a-long-random-secret-in-every-real-environment}
