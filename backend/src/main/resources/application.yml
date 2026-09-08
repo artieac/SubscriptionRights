@@ -48,7 +48,7 @@ subscriptions:
     settings:
       db-url:
         key: DBUrl
-        default-value: ${SUBSCRIPTIONS_DB_URL:jdbc:mysql://host.docker.internal:3306/subscriptionentitlements?useSSL=false&allowPublicKeyRetrieval=true}
+        default-value: ${SUBSCRIPTIONS_DB_URL:jdbc:mysql://host.docker.internal:3306/subscriptionentitlements?useSSL=false&allowPublicKeyRetrieval=true&connectionTimeZone=UTC}
       db-username:
         key: DBUserId
         default-value: ${SUBSCRIPTIONS_DB_USERNAME:updates}

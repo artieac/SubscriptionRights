@@ -5,7 +5,7 @@ subscriptions:
     api-key: ${SUBSCRIPTIONS_CONFIG_API_KEY:smk_hU88_wRx5JI9AS3cvHVGqJC4oEvfRo190nahL4n45OM}
     settings:
       db-url:
-        default-value: ${SUBSCRIPTIONS_DB_URL:jdbc:mysql://localhost:3306/subscriptionentitlements?useSSL=false&allowPublicKeyRetrieval=true}
+        default-value: ${SUBSCRIPTIONS_DB_URL:jdbc:mysql://localhost:3306/subscriptionentitlements?useSSL=false&allowPublicKeyRetrieval=true&connectionTimeZone=UTC}
       auth0-callback-url:
         default-value: http://local.api.subscriptions.alwaysmoveforward.com:8087/api/auth/callback
       # The local API host (local.api.subscriptions.alwaysmoveforward.com:8081) is plain HTTP, and
