@@ -38,6 +38,9 @@ export function ApplicationDetailPage() {
       <div className="page-header">
         <h1>{application.name}</h1>
       </div>
+      <p className="app-external-id">
+        External ID: <code>{application.externalId}</code>
+      </p>
       {application.description && <p className="app-description">{application.description}</p>}
 
       <nav className="tab-bar">
@@ -59,7 +62,7 @@ export function ApplicationDetailPage() {
       </nav>
 
       <div className="tab-content">
-        <Outlet context={{ applicationId }} />
+        <Outlet context={{ applicationId, externalId: application.externalId }} />
       </div>
     </div>
   );

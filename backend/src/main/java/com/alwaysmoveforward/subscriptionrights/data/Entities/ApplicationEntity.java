@@ -21,6 +21,9 @@ public class ApplicationEntity {
     @Column(name = "Name", nullable = false)
     private String name;
 
+    @Column(name = "ExternalId", nullable = false)
+    private String externalId;
+
     @Column(name = "Description")
     private String description;
 
@@ -41,6 +44,14 @@ public class ApplicationEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(String externalId) {
+        this.externalId = externalId;
     }
 
     public String getDescription() {

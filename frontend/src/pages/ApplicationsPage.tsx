@@ -9,7 +9,8 @@ import { ConfirmDialog } from "../components/ConfirmDialog";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { RoleGuard } from "../components/RoleGuard";
 
-const emptyForm: ApplicationRequest = { name: "", description: "" };
+const emptyForm: ApplicationRequest = { name: "", externalId: "", description: "" };
+const EXTERNAL_ID_PATTERN = "^[A-Za-z0-9_-]+$";
 
 function ApplicationForm({
   initial,
@@ -43,6 +44,21 @@ function ApplicationForm({
           required
         />
       </label>
+      <label>
+        External ID
+        <input
+          value={form.externalId}
+          onChange={(event) => setForm({ ...form, externalId: event.target.value })}
+          pattern={EXTERNAL_ID_PATTERN}
+          maxLength={20}
+          title="Letters, numbers, hyphens, and underscores only, up to 20 characters"
+          required
+        />
+      </label>
+      <p className="form-hint">
+        Used by external systems calling the API-token endpoints instead of the internal numeric ID.
+        Letters, numbers, hyphens, and underscores only, no spaces, up to 20 characters.
+      </p>
       <label>
         Description
         <textarea
@@ -124,6 +140,7 @@ export function ApplicationsPage() {
         onRowClick={(row) => navigate(`/applications/${row.id}`)}
         columns={[
           { header: "Name", render: (row) => row.name },
+          { header: "External ID", render: (row) => row.externalId },
           { header: "Description", render: (row) => row.description ?? "" },
           {
             header: "Actions",
@@ -165,7 +182,7 @@ export function ApplicationsPage() {
       {editing && (
         <Modal title="Edit Application" onClose={() => setEditing(null)}>
           <ApplicationForm
-            initial={{ name: editing.name, description: editing.description }}
+            initial={{ name: editing.name, externalId: editing.externalId, description: editing.description }}
             onSubmit={handleUpdate}
             onCancel={() => setEditing(null)}
           />

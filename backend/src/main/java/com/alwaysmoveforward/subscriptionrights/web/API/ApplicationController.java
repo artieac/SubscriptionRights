@@ -36,13 +36,15 @@ public class ApplicationController {
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
     public ApplicationViewModel create(@Valid @RequestBody ApplicationRequest request) {
-        return ApplicationViewModel.from(applicationService.createApplication(request.getName(), request.getDescription()));
+        return ApplicationViewModel.from(
+                applicationService.createApplication(request.getName(), request.getExternalId(), request.getDescription()));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApplicationViewModel update(@PathVariable Long id, @Valid @RequestBody ApplicationRequest request) {
-        return ApplicationViewModel.from(applicationService.updateApplication(id, request.getName(), request.getDescription()));
+        return ApplicationViewModel.from(
+                applicationService.updateApplication(id, request.getName(), request.getExternalId(), request.getDescription()));
     }
 
     @DeleteMapping("/{id}")

@@ -2,7 +2,7 @@ subscriptions:
   config-api:
     environment-id: ${SUBSCRIPTIONS_CONFIG_API_ENVIRONMENT_ID:Dev}
     #api-key: ${UPDATES_CONFIG_API_KEY:smk_6B6fEAj1bb6t37DQ0sHOnCbau_waWPv9pyYzLN63Soc}
-    api-key: ${SUBSCRIPTIONS_CONFIG_API_KEY:smk_hU88_wRx5JI9AS3cvHVGqJC4oEvfRo190nahL4n45OM}
+    api-key: ${SUBSCRIPTIONS_CONFIG_API_KEY:smk_EgLPuEgU_N48Ej6yoGtYBVl8cm6jToGnZVUA3vALGvg}
     settings:
       db-url:
         default-value: ${SUBSCRIPTIONS_DB_URL:jdbc:mysql://localhost:3306/subscriptionentitlements?useSSL=false&allowPublicKeyRetrieval=true&connectionTimeZone=UTC}

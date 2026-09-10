@@ -32,6 +32,10 @@ public class ApplicationRepository {
         return applicationDAO.findById(id).map(applicationMapper::toDomainModel);
     }
 
+    public Optional<Application> findByExternalId(String externalId) {
+        return applicationDAO.findByExternalId(externalId).map(applicationMapper::toDomainModel);
+    }
+
     public Application save(Application application) {
         ApplicationEntity saved = applicationDAO.save(applicationMapper.toEntity(application));
         return applicationMapper.toDomainModel(saved);

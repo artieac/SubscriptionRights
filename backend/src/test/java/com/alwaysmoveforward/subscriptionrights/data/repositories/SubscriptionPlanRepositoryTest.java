@@ -44,6 +44,7 @@ class SubscriptionPlanRepositoryTest {
     private Long seedApplication() {
         ApplicationEntity application = new ApplicationEntity();
         application.setName("Test App " + System.nanoTime());
+        application.setExternalId("ext-" + (System.nanoTime() % 1_000_000L));
         application.setDescription("d");
         application.setCreatedAt(Instant.now());
         entityManager.persist(application);
