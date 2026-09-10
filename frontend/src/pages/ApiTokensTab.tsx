@@ -108,7 +108,7 @@ function IssuedTokenReveal({ token, onClose }: { token: IssuedApiTokenDto; onClo
 }
 
 export function ApiTokensTab() {
-  const { applicationId } = useOutletContext<{ applicationId: number }>();
+  const { applicationId, externalId } = useOutletContext<{ applicationId: number; externalId: string }>();
   const [tokens, setTokens] = useState<ApiTokenDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -160,7 +160,9 @@ export function ApiTokensTab() {
 
       <p className="form-hint">
         Other systems can call this application's read-only API endpoints by passing a token here as{" "}
-        <code>Authorization: Bearer &lt;token&gt;</code>.
+        <code>Authorization: Bearer &lt;token&gt;</code>, against{" "}
+        <code>/api/external/applications/{externalId}/...</code> (e.g.{" "}
+        <code>/api/external/applications/{externalId}/subscription-plans</code>).
       </p>
 
       <DataTable

@@ -26,15 +26,21 @@ public class ApplicationService {
                 .orElseThrow(() -> new NotFoundException("Application " + id + " not found"));
     }
 
-    @Transactional
-    public Application createApplication(String name, String description) {
-        return applicationRepository.save(Application.create(name, description));
+    public Application getApplicationByExternalId(String externalId) {
+        return applicationRepository.findByExternalId(externalId)
+                .orElseThrow(() -> new NotFoundException("Application " + externalId + " not found"));
     }
 
     @Transactional
-    public Application updateApplication(Long id, String name, String description) {
+    public Application createApplication(String name, String externalId, String description) {
+        return applicationRepository.save(Application.create(name, externalId, description));
+    }
+
+    @Transactional
+    public Application updateApplication(Long id, String name, String externalId, String description) {
         Application application = getApplication(id);
         application.rename(name);
+        application.changeExternalId(externalId);
         application.updateDescription(description);
         return applicationRepository.save(application);
     }
