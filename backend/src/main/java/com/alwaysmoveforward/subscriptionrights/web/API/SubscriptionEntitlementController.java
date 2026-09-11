@@ -21,14 +21,14 @@ public class SubscriptionEntitlementController {
     }
 
     @GetMapping
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public List<SubscriptionEntitlementViewModel> list(@PathVariable Long applicationId) {
         return subscriptionEntitlementService.listForApplication(applicationId).stream()
                 .map(SubscriptionEntitlementViewModel::from).toList();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public SubscriptionEntitlementViewModel get(@PathVariable Long applicationId, @PathVariable Long id) {
         return SubscriptionEntitlementViewModel.from(subscriptionEntitlementService.getEntitlement(applicationId, id));
     }

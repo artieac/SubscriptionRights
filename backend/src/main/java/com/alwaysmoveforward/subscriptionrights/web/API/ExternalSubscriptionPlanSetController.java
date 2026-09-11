@@ -34,18 +34,15 @@ public class ExternalSubscriptionPlanSetController {
 
     @GetMapping
     @PreAuthorize("@externalApiTokenAccessGuard.canAccess(#externalId)")
-    public List<SubscriptionPlanSetViewModel> list(@PathVariable String externalId) {
+    public List<SubscriptionPlanSetViewModel> list(@PathVariable String externalId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate activeAsOf) {
         Long applicationId = applicationService.getApplicationByExternalId(externalId).getId();
+        if (activeAsOf != null) {
+            return List.of(SubscriptionPlanSetViewModel.from(
+                    subscriptionPlanSetService.getActiveForApplicationOnDate(applicationId, activeAsOf)));
+        }
         return subscriptionPlanSetService.listForApplication(applicationId).stream()
                 .map(SubscriptionPlanSetViewModel::from).toList();
-    }
-
-    @GetMapping("/active")
-    @PreAuthorize("@externalApiTokenAccessGuard.canAccess(#externalId)")
-    public SubscriptionPlanSetViewModel getActive(@PathVariable String externalId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        Long applicationId = applicationService.getApplicationByExternalId(externalId).getId();
-        return SubscriptionPlanSetViewModel.from(subscriptionPlanSetService.getActiveForApplicationOnDate(applicationId, date));
     }
 
     @GetMapping("/{id}")

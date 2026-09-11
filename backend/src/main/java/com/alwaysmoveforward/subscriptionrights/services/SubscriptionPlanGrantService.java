@@ -39,6 +39,15 @@ public class SubscriptionPlanGrantService {
         return subscriptionPlanGrantRepository.findByApplicationId(applicationId);
     }
 
+    /**
+     * The grants pinned to one specific version of a plan, rather than every version's.
+     */
+    public List<SubscriptionPlanGrant> listForPlanVersion(Long applicationId, Long subscriptionPlanId, int version) {
+        return listForApplication(applicationId, subscriptionPlanId).stream()
+                .filter(grant -> grant.getSubscriptionPlanVersion() == version)
+                .toList();
+    }
+
     public SubscriptionPlanGrant getGrant(Long applicationId, Long grantId) {
         SubscriptionPlanGrant grant = subscriptionPlanGrantRepository.findById(grantId)
                 .orElseThrow(() -> new NotFoundException("SubscriptionPlanGrant " + grantId + " not found"));

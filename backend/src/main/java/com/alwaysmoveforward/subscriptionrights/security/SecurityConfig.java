@@ -36,6 +36,11 @@ public class SecurityConfig {
                 .exceptionHandling(handling -> handling.authenticationEntryPoint(unauthenticatedEntryPoint()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login", "/api/auth/callback", "/api/auth/logout").permitAll()
+                        // No cookie-session gate for these -- each route's own
+                        // @externalApiTokenAccessGuard.canAccess(...) check (see
+                        // ExternalApiTokenAccessGuard) is what actually enforces that the caller
+                        // holds a valid API token scoped to the requested application.
+                        .requestMatchers("/api/external/**").permitAll()
                         .anyRequest().authenticated())
                 // Either filter may authenticate a request -- a browser session cookie or a
                 // machine "Authorization: Bearer <token>" header -- whichever finds its

@@ -10,10 +10,13 @@ import java.util.Optional;
 
 /**
  * Backs the "@externalApiTokenAccessGuard.canAccess(#externalId)" expression used on every
- * /api/external/applications/{externalId}/... route. Unlike {@link ApiTokenAccessGuard}, these
- * routes exist only for API-token callers -- a cookie-authenticated browser session is rejected
- * here even though it would otherwise be authenticated, since the whole point of this route family
- * is to give external systems a stable, name-like identifier that isn't the internal numeric Id.
+ * /api/external/applications/{externalId}/... route. These routes exist only for API-token
+ * callers -- a cookie-authenticated browser session is rejected here even though it would
+ * otherwise be authenticated, since the whole point of this route family is to give external
+ * systems a stable, name-like identifier that isn't the internal numeric Id. API tokens, in turn,
+ * can only ever authenticate requests under /api/external/** -- see
+ * ApiTokenAuthenticationFilter#shouldNotFilter -- so this guard and that filter together are what
+ * keep the token and cookie auth paths fully separate.
  */
 @Component("externalApiTokenAccessGuard")
 public class ExternalApiTokenAccessGuard {

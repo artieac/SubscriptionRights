@@ -25,21 +25,21 @@ public class SubscriptionPlanSetController {
     }
 
     @GetMapping
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public List<SubscriptionPlanSetViewModel> list(@PathVariable Long applicationId) {
         return subscriptionPlanSetService.listForApplication(applicationId).stream()
                 .map(SubscriptionPlanSetViewModel::from).toList();
     }
 
     @GetMapping("/active")
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public SubscriptionPlanSetViewModel getActive(@PathVariable Long applicationId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return SubscriptionPlanSetViewModel.from(subscriptionPlanSetService.getActiveForApplicationOnDate(applicationId, date));
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public SubscriptionPlanSetViewModel get(@PathVariable Long applicationId, @PathVariable Long id) {
         return SubscriptionPlanSetViewModel.from(subscriptionPlanSetService.getSet(applicationId, id));
     }

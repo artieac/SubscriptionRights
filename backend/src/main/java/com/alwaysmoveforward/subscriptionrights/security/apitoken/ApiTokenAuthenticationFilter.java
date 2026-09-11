@@ -17,20 +17,28 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Reads an "Authorization: Bearer <token>" header on every request and, if it names a live
- * (non-revoked) ApiToken, populates the Spring Security context with an ApiClientPrincipal.
- * Coexists with JwtCookieAuthenticationFilter -- each only acts on its own credential source and
- * only if the request isn't already authenticated, so a browser session cookie and a machine
- * Bearer token are handled independently by whichever filter finds its credential first.
+ * Reads an "Authorization: Bearer <token>" header on requests under /api/external/** and, if it
+ * names a live (non-revoked) ApiToken, populates the Spring Security context with an
+ * ApiClientPrincipal. Scoped to that path so an API token can never authenticate a request against
+ * any other controller -- those are cookie-session only, enforced structurally here rather than
+ * per-endpoint. Coexists with JwtCookieAuthenticationFilter -- each only acts on its own credential
+ * source and only if the request isn't already authenticated, so a browser session cookie and a
+ * machine Bearer token are handled independently by whichever filter finds its credential first.
  */
 public class ApiTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final String EXTERNAL_API_PATH_PREFIX = "/api/external/";
 
     private final ApiTokenService apiTokenService;
 
     public ApiTokenAuthenticationFilter(ApiTokenService apiTokenService) {
         this.apiTokenService = apiTokenService;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !request.getRequestURI().startsWith(request.getContextPath() + EXTERNAL_API_PATH_PREFIX);
     }
 
     @Override

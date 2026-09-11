@@ -21,7 +21,7 @@ public class SubscriptionPlanGrantController {
     }
 
     @GetMapping
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public List<SubscriptionPlanGrantViewModel> list(@PathVariable Long applicationId,
                                                        @RequestParam(required = false) Long subscriptionPlanId) {
         return subscriptionPlanGrantService.listForApplication(applicationId, subscriptionPlanId).stream()
@@ -29,7 +29,7 @@ public class SubscriptionPlanGrantController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public SubscriptionPlanGrantViewModel get(@PathVariable Long applicationId, @PathVariable Long id) {
         return SubscriptionPlanGrantViewModel.from(subscriptionPlanGrantService.getGrant(applicationId, id));
     }

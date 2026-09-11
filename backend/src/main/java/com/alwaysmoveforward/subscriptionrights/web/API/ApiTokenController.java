@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Token management is an admin action -- every method here requires ROLE_ADMIN. This is
- * distinct from ApiTokenAccessGuard, which governs what a token itself can read once issued.
+ * distinct from ExternalApiTokenAccessGuard, which governs what a token itself can read once issued.
  */
 @RestController
 @RequestMapping("/api/applications/{applicationId}/api-tokens")
