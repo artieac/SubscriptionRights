@@ -27,7 +27,7 @@ public class ApplicationController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#id)")
+    @PreAuthorize("hasRole('USER')")
     public ApplicationViewModel get(@PathVariable Long id) {
         return ApplicationViewModel.from(applicationService.getApplication(id));
     }

@@ -4,7 +4,7 @@ package com.alwaysmoveforward.subscriptionrights.security.apitoken;
  * A machine caller authenticated via an API token, attached to the Spring Security context by
  * {@link ApiTokenAuthenticationFilter}. Carries ROLE_API_CLIENT, an authority deliberately outside
  * the ROLE_USER/ROLE_ADMIN hierarchy -- a token isn't comparable to a logged-in user's role, it's
- * a narrower, Application-scoped, read-only credential (see ApiTokenAccessGuard).
+ * a narrower, Application-scoped, read-only credential (see ExternalApiTokenAccessGuard).
  */
 public class ApiClientPrincipal {
 

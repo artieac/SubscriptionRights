@@ -27,20 +27,20 @@ public class SubscriptionPlanController {
     }
 
     @GetMapping
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public List<SubscriptionPlanViewModel> list(@PathVariable Long applicationId) {
         return subscriptionPlanService.listForApplication(applicationId).stream()
                 .map(SubscriptionPlanViewModel::from).toList();
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public SubscriptionPlanViewModel get(@PathVariable Long applicationId, @PathVariable Long id) {
         return SubscriptionPlanViewModel.from(subscriptionPlanService.getPlan(applicationId, id));
     }
 
     @GetMapping("/{id}/versions")
-    @PreAuthorize("@apiTokenAccessGuard.canAccessApplication(#applicationId)")
+    @PreAuthorize("hasRole('USER')")
     public List<SubscriptionPlanViewModel> listVersions(@PathVariable Long applicationId, @PathVariable Long id) {
         return subscriptionPlanService.listVersions(applicationId, id).stream()
                 .map(SubscriptionPlanViewModel::from).toList();

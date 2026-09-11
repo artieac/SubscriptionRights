@@ -32,6 +32,30 @@ function extractErrorMessage(error: unknown): string {
   return "Something went wrong. Please check for overlapping date ranges and try again.";
 }
 
+/** Day before {@code dateStr} (an ISO "YYYY-MM-DD" date), computed in UTC to avoid local-timezone drift. */
+function dayBefore(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() - 1);
+  return date.toISOString().slice(0, 10);
+}
+
+/** Mirrors SubscriptionPlanSet#overlaps on the backend: a null end date means open-ended. */
+function rangesOverlap(aStart: string, aEnd: string | null, bStart: string, bEnd: string | null): boolean {
+  const aStartsBeforeBEnds = bEnd === null || aStart <= bEnd;
+  const bStartsBeforeAEnds = aEnd === null || bStart <= aEnd;
+  return aStartsBeforeBEnds && bStartsBeforeAEnds;
+}
+
+function findOverlappingSet(
+  sets: SubscriptionPlanSetDto[],
+  request: SubscriptionPlanSetRequest,
+): SubscriptionPlanSetDto | undefined {
+  return sets.find((existing) =>
+    rangesOverlap(request.effectiveStartDate, request.effectiveEndDate, existing.effectiveStartDate, existing.effectiveEndDate),
+  );
+}
+
 interface ItemRow {
   key: number;
   subscriptionPlanId: number | "";
@@ -339,6 +363,55 @@ function SubscriptionPlanSetForm({
   );
 }
 
+function EndOverlappingSetDialog({
+  overlappingSet,
+  newSetStartDate,
+  onConfirm,
+  onCancel,
+}: {
+  overlappingSet: SubscriptionPlanSetDto;
+  newSetStartDate: string;
+  onConfirm: () => Promise<void>;
+  onCancel: () => void;
+}) {
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const truncatedEndDate = dayBefore(newSetStartDate);
+
+  async function handleConfirm() {
+    setProcessing(true);
+    setError(null);
+    try {
+      await onConfirm();
+    } catch (confirmError) {
+      setError(extractErrorMessage(confirmError));
+      setProcessing(false);
+    }
+  }
+
+  return (
+    <Modal title="Overlapping Plan Set" onClose={onCancel}>
+      <p>
+        This date range overlaps the existing plan set "{overlappingSet.name}" (
+        {overlappingSet.effectiveStartDate} – {overlappingSet.effectiveEndDate ?? "open-ended"}).
+      </p>
+      <p>
+        End "{overlappingSet.name}" on {truncatedEndDate} — the day before the new set starts — and save the new
+        set?
+      </p>
+      {error && <p className="form-error">{error}</p>}
+      <div className="dialog-actions">
+        <button type="button" onClick={onCancel} disabled={processing}>
+          No, let me edit
+        </button>
+        <button type="button" onClick={() => void handleConfirm()} disabled={processing}>
+          {processing ? "Saving…" : "Yes, end it and save"}
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 export function SubscriptionPlanSetsTab() {
   const { applicationId } = useOutletContext<{ applicationId: number }>();
   const [sets, setSets] = useState<SubscriptionPlanSetDto[]>([]);
@@ -348,6 +421,10 @@ export function SubscriptionPlanSetsTab() {
   const [showCreate, setShowCreate] = useState(false);
   const [editing, setEditing] = useState<SubscriptionPlanSetDto | null>(null);
   const [deleting, setDeleting] = useState<SubscriptionPlanSetDto | null>(null);
+  const [pendingOverlap, setPendingOverlap] = useState<{
+    request: SubscriptionPlanSetRequest;
+    overlappingSet: SubscriptionPlanSetDto;
+  } | null>(null);
 
   const [findDate, setFindDate] = useState("");
   const [findResult, setFindResult] = useState<SubscriptionPlanSetDto | null>(null);
@@ -376,7 +453,27 @@ export function SubscriptionPlanSetsTab() {
   }, [applicationId]);
 
   async function handleCreate(request: SubscriptionPlanSetRequest) {
+    const overlapping = findOverlappingSet(sets, request);
+    if (overlapping) {
+      setPendingOverlap({ request, overlappingSet: overlapping });
+      return;
+    }
     await SubscriptionPlanSetRepository.create(applicationId, request);
+    setShowCreate(false);
+    await load();
+  }
+
+  async function handleConfirmEndOverlapping() {
+    if (!pendingOverlap) return;
+    const { request, overlappingSet } = pendingOverlap;
+    await SubscriptionPlanSetRepository.update(applicationId, overlappingSet.id, {
+      name: overlappingSet.name,
+      effectiveStartDate: overlappingSet.effectiveStartDate,
+      effectiveEndDate: dayBefore(request.effectiveStartDate),
+      items: overlappingSet.items,
+    });
+    await SubscriptionPlanSetRepository.create(applicationId, request);
+    setPendingOverlap(null);
     setShowCreate(false);
     await load();
   }
@@ -495,6 +592,15 @@ export function SubscriptionPlanSetsTab() {
           message={`Delete "${deleting.name}"? This cannot be undone.`}
           onConfirm={handleDelete}
           onCancel={() => setDeleting(null)}
+        />
+      )}
+
+      {pendingOverlap && (
+        <EndOverlappingSetDialog
+          overlappingSet={pendingOverlap.overlappingSet}
+          newSetStartDate={pendingOverlap.request.effectiveStartDate}
+          onConfirm={handleConfirmEndOverlapping}
+          onCancel={() => setPendingOverlap(null)}
         />
       )}
     </div>
